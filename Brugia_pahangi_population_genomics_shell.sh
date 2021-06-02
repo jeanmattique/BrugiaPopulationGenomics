@@ -2,7 +2,7 @@
 ##Working Directory Setup
 if [[ 1 -eq 2 ]]
 then
-
+	cp /local/aberdeen2rw/julie/JM_dir/PahangiPilonFASTA/BrugiaPahangi.FINAL.V5.2.fasta /local/scratch/jmattick/
 	rm -rf /local/scratch/jmattick/PahangiIllumina/
 	mkdir /local/scratch/jmattick/PahangiIllumina/
 fi
@@ -15,12 +15,13 @@ then
 fi
 
 
-if [[ 1 -eq 2 ]]
+if [[ 1 -eq 1 ]]
 then
 	rm -rf /local/scratch/jmattick/temp/
 	mkdir /local/scratch/jmattick/temp/
 fi
 
+####FIX TO EXCLUDE PAR READS!!!!!
 
 ####FASTA File Masking
 if [[ 1 -eq 2 ]]
@@ -29,7 +30,7 @@ then
 	rm -rf $outdir
 	mkdir $outdir
 	cd $outdir
-
+	cp /local/aberdeen2rw/julie/JM_dir/PahangiPilonFASTA/BrugiaPahangi.FINAL.V5.2.fasta /local/scratch/jmattick/
 	cp /local/scratch/jmattick/BrugiaPahangi.FINAL.V5.2.fasta $outdir
 
 	/usr/local/packages/repeatmodeler-1.0.11/BuildDatabase -name BrugiaPahangi.FINAL.V5.2.fasta -engine wublast $outdir/BrugiaPahangi.FINAL.V5.2.fasta
@@ -44,6 +45,11 @@ then
 fi
 #fastapath=$(\ls /local/aberdeen2rw/julie/JM_dir/PahangiPilonFASTA/1.BrugiaPahangi.CURRENT.fasta)
 #fastapath=$(\ls /local/scratch/jmattick/BrugiaPahangi.FINAL.V5.2.fasta)
+if [[ 1 -eq 2 ]]
+then
+	cp /local/scratch/jmattick/Pahangi_FinalRepeat/BrugiaPahangi.FINAL.V5.2.fasta.masked /local/scratch/jmattick/BrugiaPahangi.FINAL.V5.2.masked.fasta
+fi
+cp /local/aberdeen2rw/julie/JM_dir/PahangiPilonFASTA/BrugiaPahangi.FINAL.V5.2.masked.fasta /local/scratch/jmattick/ /local/aberdeen2rw/julie/JM_dir/PahangiPilonFASTA/BrugiaPahangi.FINAL.V5.2.masked.fasta
 fastapath=$(\ls /local/scratch/jmattick/BrugiaPahangi.FINAL.V5.2.masked.fasta)
 
 dictpath=$(echo $fastapath | sed 's/fasta/dict/g')
@@ -96,6 +102,8 @@ then
 		##samtools view -H $outdir/$j.sorted.dedup.bam | sed 's,^@RG.*,@RG\tID:None\tSM:None\tLB:None\tPL:Illumina,g' |  samtools reheader - $outdir/$j.sorted.dedup.bam > $outdir/$j.sorted.dedup.reheader.bam
 
 		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.vcf
+		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --sample-ploidy 1 --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.haploid.vcf
+
 
 	done
 
@@ -160,6 +168,7 @@ then
 		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -o $outdir/$j.sorted.dedup.depth -l mem_free=4G -b y -cwd /usr/local/packages/samtools/bin/samtools  depth -aa -d 10000000000 $outdir/$j.sorted.dedup.bam
 
 		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.vcf
+		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --sample-ploidy 1 --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.haploid.vcf
 
 	done
 fi
@@ -197,6 +206,7 @@ then
 		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -o $outdir/$j.sorted.dedup.depth -l mem_free=4G -b y -cwd /usr/local/packages/samtools/bin/samtools  depth -aa -d 10000000000 $outdir/$j.sorted.dedup.bam
 
 		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.vcf
+		qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --sample-ploidy 1 --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.haploid.vcf
 
 	done
 fi
@@ -251,6 +261,7 @@ then
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -o $outdir/$j.sorted.dedup.depth -l mem_free=4G -b y -cwd /usr/local/packages/samtools/bin/samtools depth -aa -d 10000000000 $outdir/$j.sorted.dedup.bam
 
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.vcf
+			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --sample-ploidy 1 --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.haploid.vcf
 
 
 		else
@@ -275,6 +286,7 @@ then
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -o $outdir/$j.sorted.dedup.depth -l mem_free=4G -b y -cwd /usr/local/packages/samtools/bin/samtools depth -aa -d 10000000000 $outdir/$j.sorted.dedup.bam
 
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.vcf
+			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --sample-ploidy 1 --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.haploid.vcf
 
 		fi
 	done
@@ -332,6 +344,7 @@ then
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -o $outdir/$j.sorted.dedup.depth -l mem_free=4G -b y -cwd /usr/local/packages/samtools/bin/samtools depth -aa -d 10000000000 $outdir/$j.sorted.dedup.bam
 
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.vcf
+			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --sample-ploidy 1 --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.haploid.vcf
 
 
 		else
@@ -356,6 +369,7 @@ then
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -o $outdir/$j.sorted.dedup.depth -l mem_free=4G -b y -cwd /usr/local/packages/samtools/bin/samtools depth -aa -d 10000000000 $outdir/$j.sorted.dedup.bam
 
 			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.vcf
+			qsub -hold_jid $list -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --sample-ploidy 1 --reference $fastapath --input $outdir/$j.sorted.dedup.bam --output $outdir/$j.sorted.dedup.haploid.vcf
 
 		fi
 	done
@@ -487,9 +501,60 @@ then
 	outdir=$(echo "/local/scratch/jmattick/PahangiSNPs/")
 	rm -rf $outdir
 	mkdir $outdir
-	filelist=$(\ls /local/scratch/jmattick/PahangiIllumina/*/*.vcf.gz | grep "vcf.gz" | grep -v "idx" | tr '\n' ' ')
+	filelist=$(\ls /local/scratch/jmattick/PahangiIllumina/*/*.vcf.gz | grep "vcf.gz" | grep -v "haploid" | grep -v "idx" | tr '\n' ' ')
 	perl -I /usr/local/packages/vcftools/lib/site_perl/5.24.0/ /usr/local/packages/vcftools/bin/vcf-merge -R "0/0" $filelist > $outdir/All.merged.ref.vcf
 
+	filelist=$(\ls /local/scratch/jmattick/PahangiIllumina/*/*.vcf.gz | grep "vcf.gz" | grep "haploid" | grep -v "idx" | tr '\n' ' ')
+	perl -I /usr/local/packages/vcftools/lib/site_perl/5.24.0/ /usr/local/packages/vcftools/bin/vcf-merge -R "0/0" $filelist > $outdir/All.merged.haploid.ref.vcf
+
+
+fi
+
+
+###Joint Calling
+if [[ 1 -eq 2 ]]
+then
+	outdir=$(echo "/local/scratch/jmattick/PahangiSNPs_Joint/")
+	rm -rf $outdir
+	mkdir $outdir
+	filelist=$(ls /local/scratch/jmattick/PahangiIllumina/*/*.sorted.dedup.bam | tr '\n' ',')
+	filelist=$(ls /local/scratch/jmattick/PahangiIllumina/*/*.sorted.dedup.bam | tr '\n' ';' | sed 's/;/ --input /g' | sed 's/ --input $//g' | awk '{print "--input "$0}')
+	j="Combined"
+	cd $outdir
+	qsub -P jhotopp-gcid-proj4b-filariasis -l mem_free=24G -b y -cwd /usr/local/packages/gatk-4.0.4.0/gatk HaplotypeCaller --read-filter MappingQualityReadFilter --reference $fastapath $filelist --output $outdir/$j.sorted.dedup.vcf
+
+fi
+
+###Joint Filter
+if [[ 1 -eq 2 ]]
+then
+	outdir=$(echo "/local/scratch/jmattick/PahangiSNPs/")
+
+	/usr/local/packages/gatk-4.0.4.0/gatk VariantFiltration -V $outdir/All.merged.ref.vcf -R $fastapath -O $outdir/All.merged.ref.filtered.vcf --filter-expression "QD < 5.0 || QUAL < 30.0 || DP < 14.0 || MQ < 30.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0 || FS > 60.0" --filter-name "HardFilter"
+
+	/usr/local/packages/gatk-4.0.4.0/gatk SelectVariants -V $outdir/All.merged.ref.filtered.vcf -R $fastapath -O $outdir/All.merged.ref.filteredonly.vcf -select 'vc.isNotFiltered()'
+
+	paste -d '\t' <(cat $outdir/All.merged.ref.filteredonly.vcf | grep -v "#" | grep "Chr" | awk '{print $1"\t"$2}') <(cat $outdir/All.merged.ref.filteredonly.vcf | grep -v "#" | grep "Chr" | awk '{print $NF}' | sed 's/:.*//g' | awk -F '/' '{if($1 == $2) print "hom"; else print "het";}') > $outdir/All.merged.ref.filteredonly.tsv
+
+	/usr/local/packages/gatk-4.0.4.0/gatk VariantFiltration -V $outdir/All.merged.haploid.ref.vcf -R $fastapath -O $outdir/All.merged.haploid.ref.filtered.vcf --filter-expression "QD < 5.0 || QUAL < 30.0 || DP < 14.0 || MQ < 30.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0 || FS > 60.0" --filter-name "HardFilter"
+
+	/usr/local/packages/gatk-4.0.4.0/gatk SelectVariants -V $outdir/All.merged.haploid.ref.filtered.vcf -R $fastapath -O $outdir/All.merged.haploid.ref.filteredonly.vcf -select 'vc.isNotFiltered()'
+
+	paste -d '\t' <(cat $outdir/All.merged.haploid.ref.filteredonly.vcf | grep -v "#" | grep "Chr" | awk '{print $1"\t"$2}') <(cat $outdir/All.merged.haploid.ref.filteredonly.vcf | grep -v "#" | grep "Chr" | awk '{print $NF}' | sed 's/:.*//g' | awk -F '/' '{if($1 == $2) print "hom"; else print "het";}') > $outdir/All.merged.haploid.ref.filteredonly.tsv
+
+	/usr/local/packages/vcftools/bin/vcftools --vcf $outdir/All.merged.ref.filteredonly.vcf --freq2 --out $outdir/All.merged.ref.filteredonly
+	/usr/local/packages/vcftools/bin/vcftools --vcf $outdir/All.merged.haploid.ref.filteredonly.vcf --freq2 --out $outdir/All.merged.haploid.ref.filteredonly
+
+
+	/usr/local/packages/vcftools/bin/vcftools --vcf $outdir/All.merged.ref.filteredonly.vcf --window-pi 10000 --out $outdir/All.merged.ref.filteredonly.pi
+	/usr/local/packages/vcftools/bin/vcftools --vcf $outdir/All.merged.haploid.ref.filteredonly.vcf --window-pi 10000 --out $outdir/All.merged.haploid.ref.filteredonly.pi
+
+	rm -rf /local/projects-t3/EBMAL/SNP_MALE_GATK_Best_Practices/Masked_SNP_Tables_All/BPahangi_New/
+	mkdir /local/projects-t3/EBMAL/SNP_MALE_GATK_Best_Practices/Masked_SNP_Tables_All/BPahangi_New/
+	cp $outdir/All.merged.ref.filteredonly.tsv /local/projects-t3/EBMAL/SNP_MALE_GATK_Best_Practices/Masked_SNP_Tables_All/BPahangi_New/
+	cp $outdir/All.merged.haploid.ref.filteredonly.tsv /local/projects-t3/EBMAL/SNP_MALE_GATK_Best_Practices/Masked_SNP_Tables_All/BPahangi_New/
+	cp $outdir/All.merged.ref.filteredonly.pi.windowed.pi /local/projects-t3/EBMAL/SNP_MALE_GATK_Best_Practices/Masked_SNP_Tables_All/BPahangi_New/
+	cp $outdir/All.merged.haploid.ref.filteredonly.pi.windowed.pi /local/projects-t3/EBMAL/SNP_MALE_GATK_Best_Practices/Masked_SNP_Tables_All/BPahangi_New/
 
 fi
 
@@ -816,7 +881,7 @@ then
 
 fi
 
-if [[ 1 -eq 1 ]]
+if [[ 1 -eq 2 ]]
 then
 	cd /local/scratch/jmattick/BrugiaMalayiSF2/
 
